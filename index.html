@@ -474,6 +474,47 @@
             font-size: 0.9rem;
             margin-top: 10px;
         }
+        
+        /* 备用聊天按钮 */
+        .fallback-chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s;
+        }
+        
+        .fallback-chat-button:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+        
+        /* 错误提示 */
+        .error-message {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            z-index: 2001;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -487,13 +528,21 @@
         </div>
     </div>
 
+    <!-- 备用聊天按钮 -->
+    <div class="fallback-chat-button" id="fallbackChatButton" style="display: none;">
+        <i class="fas fa-comments"></i>
+    </div>
+
+    <!-- 错误提示 -->
+    <div class="error-message" id="errorMessage"></div>
+
     <!-- 导航栏 -->
     <header>
         <div class="container">
             <nav class="navbar">
                 <div class="logo">
                     <i class="fas fa-baby"></i>
-                    <span>【妈咪育婴】智能育婴助手</span>
+                    <span>智能育婴助手</span>
                 </div>
                 <div class="nav-links">
                     <a href="#features">功能特点</a>
@@ -676,10 +725,53 @@
               id: '4tS30woPvdVpS28P9Swmt9', // 当前智能体ID，请勿修改
               name: '妈咪育婴', // 窗体左上角标题，可自定义修改
             });
+            
+            console.log('智能体API加载成功');
+            
+            // 检查智能体是否成功加载
+            setTimeout(function() {
+              const chatButton = document.querySelector('.floating-chat-button');
+              if (!chatButton) {
+                showFallbackButton();
+                showError('智能体加载失败，已启用备用聊天功能');
+              }
+            }, 3000);
+            
+          } else {
+            showFallbackButton();
+            showError('智能体API加载失败，已启用备用聊天功能');
           }
         };
+        
+        scriptEl.onerror = function() {
+          showFallbackButton();
+          showError('无法加载智能体API，请检查网络连接');
+        };
+        
         document.body.appendChild(scriptEl);
       });
+      
+      // 显示备用聊天按钮
+      function showFallbackButton() {
+        const fallbackButton = document.getElementById('fallbackChatButton');
+        fallbackButton.style.display = 'flex';
+        
+        // 备用聊天功能
+        fallbackButton.addEventListener('click', function() {
+          alert('由于技术原因，智能助手暂时无法使用。\n\n您可以通过以下方式联系我们：\n微信: TLF1424051522\nQQ: 1424051522\n电话: 18081094061\n\n我们会尽快为您提供帮助！');
+        });
+      }
+      
+      // 显示错误信息
+      function showError(message) {
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        
+        setTimeout(function() {
+          errorMessage.style.display = 'none';
+        }, 5000);
+      }
       
       // 自定义功能
       document.addEventListener('DOMContentLoaded', function() {
@@ -735,7 +827,9 @@
           if (chatBtn) {
             chatBtn.click();
           } else {
-            alert('请稍等，智能助手正在加载中...');
+            // 如果找不到智能体按钮，显示备用功能
+            showFallbackButton();
+            document.getElementById('fallbackChatButton').click();
           }
         });
         
@@ -772,6 +866,5 @@
       });
     </script>
 </body>
-
 </html>
 
